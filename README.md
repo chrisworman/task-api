@@ -1,5 +1,5 @@
 # task-api
-The api for the task application.
+The api for the task application.  Based off of https://scotch.io/tutorials/build-a-restful-api-with-flask-the-tdd-way.
 
 # Setup
 Ensure you have `virtualenv`. Then:
