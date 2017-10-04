@@ -53,6 +53,15 @@ def create_app(config_name):
             response.status_code = 200
             return response
 
+    @app.route('/tasks/<task_id>', methods=['DELETE'])
+    def tasks_delete(task_id):
+        task = Task.get_by_id(id=task_id)
+        task.delete()
+        result = { 'message' : 'Task deleted' }
+        response = jsonify(result)
+        response.status_code = 200
+        return response
+
     @app.route('/lists/', methods=['POST', 'GET'])
     def lists():
         if request.method == "POST":

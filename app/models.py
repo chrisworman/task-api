@@ -27,6 +27,10 @@ class Task(db.Model):
     def get_by_list_id(list_id):
         return Task.query.filter_by(list_id=list_id)
 
+    @staticmethod
+    def get_by_id(id):
+        return Task.query.get(id)
+
     def delete(self):
         db.session.delete(self)
         db.session.commit()
