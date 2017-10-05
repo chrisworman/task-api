@@ -2,9 +2,9 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort
-
-# local import
 from instance.config import app_config
+import pprint
+import json
 
 # initialize sql-alchemy
 db = SQLAlchemy()
@@ -53,7 +53,20 @@ def create_app(config_name):
             response.status_code = 200
             return response
 
-    @app.route('/tasks/<task_id>', methods=['DELETE'])
+    @app.route('/tasks/<int:task_id>', methods=['PUT'])
+    def tasks_put(task_id):
+        if task_id > 0:
+            db_task = Task.get_by_id(task_id)
+            if db_task:
+                new_task_dict = request.get_json(force=True)
+                db_task.text = new_task_dict['text']
+                db_task.list_id = new_task_dict['list_id']
+                db_task.save()
+                return ('', 204)
+            else:
+                abort(404)
+
+    @app.route('/tasks/<int:task_id>', methods=['DELETE'])
     def tasks_delete(task_id):
         task = Task.get_by_id(id=task_id)
         task.delete()
@@ -93,25 +106,35 @@ def create_app(config_name):
             response.status_code = 200
             return response
 
-    @app.route('/lists/<list_id>', methods=['DELETE', 'GET'])
+    @app.route('/lists/<int:list_id>', methods=['DELETE', 'GET', 'PUT'])
     def lists_delete(list_id):
-        if request.method == 'DELETE':
-            list = List.get_by_id(id=list_id)
-            list.delete()
-            result = { 'message' : 'List deleted' }
-            response = jsonify(result)
-            response.status_code = 200
-            return response
+        print(list_id)
+        if list_id > 0:
+            if request.method == 'DELETE':
+                list = List.get_by_id(id=list_id)
+                list.delete()
+                return ('', 204)
 
-        elif request.method == 'GET':
-            list = List.get_by_id(id=list_id)
-            response = jsonify({
-                'id': list.id,
-                'name': list.name,
-                'date_created': list.date_created,
-                'date_modified': list.date_modified
-            })
-            response.status_code = 200
-            return response
+            elif request.method == 'GET':
+                list = List.get_by_id(id=list_id)
+                response = jsonify({
+                    'id': list.id,
+                    'name': list.name,
+                    'date_created': list.date_created,
+                    'date_modified': list.date_modified
+                })
+                response.status_code = 200
+                return response
+            elif request.method == 'PUT':
+                db_list = List.get_by_id(list_id)
+                if db_list:
+                    new_list_dict = request.get_json(force=True)
+                    db_list.name = new_list_dict['name']
+                    db_list.save()
+                    return ('', 204)
+                else:
+                    abort(404)
+        else:
+            abort(404)
 
     return app

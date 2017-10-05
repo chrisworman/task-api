@@ -19,7 +19,6 @@ class Task(db.Model):
         self.text = text
 
     def save(self):
-        print(self.id)
         db.session.add(self)
         db.session.commit()
 
@@ -28,8 +27,8 @@ class Task(db.Model):
         return Task.query.filter_by(list_id=list_id)
 
     @staticmethod
-    def get_by_id(id):
-        return Task.query.get(id)
+    def get_by_id(task_id):
+        return Task.query.get(task_id)
 
     def delete(self):
         db.session.delete(self)
