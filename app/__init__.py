@@ -19,39 +19,45 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/tasks/', methods=['POST', 'GET'])
-    def tasks():
-        if request.method == "POST":
-            list_id = int(request.data.get('list_id', 0))
-            text = str(request.data.get('text', ''))
-            if text and list_id > 0:
-                task = Task(list_id=list_id,text=text)
-                task.save()
-                response = jsonify({
-                    'id': task.id,
-                    'list_id': task.list_id,
-                    'text': task.text,
-                    'date_created': task.date_created,
-                    'date_modified': task.date_modified
-                })
-                response.status_code = 201
-                return response
-        elif request.method == "GET":
-            list_id = int(request.args.get('list_id', 0))
-            tasks = Task.get_by_list_id(list_id)
-            results = []
-            for task in tasks:
-                obj = {
-                    'id': task.id,
-                    'list_id': task.list_id,
-                    'text': task.text,
-                    'date_created': task.date_created,
-                    'date_modified': task.date_modified
-                }
-                results.append(obj)
-            response = jsonify(results)
-            response.status_code = 200
+    # routing
+    app.url_map.strict_slashes = False
+
+    # /tasks
+
+    @app.route('/tasks/', methods=['POST'])
+    def tasks_post():
+        list_id = int(request.data.get('list_id', 0))
+        text = str(request.data.get('text', ''))
+        if text and list_id > 0:
+            task = Task(list_id=list_id,text=text)
+            task.save()
+            response = jsonify({
+                'id': task.id,
+                'list_id': task.list_id,
+                'text': task.text,
+                'date_created': task.date_created,
+                'date_modified': task.date_modified
+            })
+            response.status_code = 201
             return response
+
+    @app.route('/tasks/', methods=['GET'])
+    def tasks_get():
+        list_id = int(request.args.get('list_id', 0))
+        tasks = Task.get_by_list_id(list_id)
+        results = []
+        for task in tasks:
+            obj = {
+                'id': task.id,
+                'list_id': task.list_id,
+                'text': task.text,
+                'date_created': task.date_created,
+                'date_modified': task.date_modified
+            }
+            results.append(obj)
+        response = jsonify(results)
+        response.status_code = 200
+        return response
 
     @app.route('/tasks/<int:task_id>', methods=['PUT'])
     def tasks_put(task_id):
@@ -75,65 +81,71 @@ def create_app(config_name):
         response.status_code = 200
         return response
 
-    @app.route('/lists/', methods=['POST', 'GET'])
-    def lists():
-        if request.method == "POST":
-            name = str(request.data.get('name', ''))
-            if name:
-                list = List(name=name)
-                list.save()
-                response = jsonify({
-                    'id': list.id,
-                    'name': list.name,
-                    'date_created': list.date_created,
-                    'date_modified': list.date_modified
-                })
-                response.status_code = 201
-                return response
+    # /lists
 
-        elif request.method == "GET":
-            lists = List.get_all()
-            results = []
-            for l in lists:
-                obj = {
-                    'id': l.id,
-                    'name': l.name,
-                    'date_created': l.date_created,
-                    'date_modified': l.date_modified
-                }
-                results.append(obj)
-            response = jsonify(results)
-            response.status_code = 200
+    @app.route('/lists/', methods=['POST'])
+    def lists_post():
+        name = str(request.data.get('name', ''))
+        if name:
+            list = List(name=name)
+            list.save()
+            response = jsonify({
+                'id': list.id,
+                'name': list.name,
+                'date_created': list.date_created,
+                'date_modified': list.date_modified
+            })
+            response.status_code = 201
             return response
 
-    @app.route('/lists/<int:list_id>', methods=['DELETE', 'GET', 'PUT'])
-    def lists_delete(list_id):
-        print(list_id)
-        if list_id > 0:
-            if request.method == 'DELETE':
-                list = List.get_by_id(id=list_id)
-                list.delete()
-                return ('', 204)
+    @app.route('/lists/', methods=['GET'])
+    def lists_get():
+        lists = List.get_all()
+        results = []
+        for l in lists:
+            obj = {
+                'id': l.id,
+                'name': l.name,
+                'date_created': l.date_created,
+                'date_modified': l.date_modified
+            }
+            results.append(obj)
+        response = jsonify(results)
+        response.status_code = 200
+        return response
 
-            elif request.method == 'GET':
-                list = List.get_by_id(id=list_id)
-                response = jsonify({
-                    'id': list.id,
-                    'name': list.name,
-                    'date_created': list.date_created,
-                    'date_modified': list.date_modified
-                })
-                response.status_code = 200
-                return response
-            elif request.method == 'PUT':
-                db_list = List.get_by_id(list_id)
-                if db_list:
-                    new_list_dict = request.get_json(force=True)
-                    db_list.name = new_list_dict['name']
-                    db_list.save()
-                    return ('', 204)
-                else:
-                    abort(404)
+    @app.route('/lists/<int:list_id>', methods=['DELETE'])
+    def lists_delete(list_id):
+        list = List.get_by_id(id=list_id)
+        if list:
+            list.delete()
+            return ('', 204)
+        else:
+            abort(404)
+
+    @app.route('/lists/<int:list_id>', methods=['GET'])
+    def lists_get_by_id(list_id):
+        list = List.get_by_id(id=list_id)
+        if list:
+            response = jsonify({
+                'id': list.id,
+                'name': list.name,
+                'date_created': list.date_created,
+                'date_modified': list.date_modified
+            })
+            response.status_code = 200
+            return response
+        else:
+            abort(404)
+
+    @app.route('/lists/<int:list_id>', methods=['PUT'])
+    def lists_put(list_id):
+        db_list = List.get_by_id(list_id)
+        if db_list:
+            new_list_dict = request.get_json(force=True)
+            db_list.name = new_list_dict['name']
+            db_list.save()
+            return ('', 204)
         else:
             abort(404)
 
