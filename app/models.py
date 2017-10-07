@@ -62,8 +62,8 @@ class List(db.Model):
         return List.query.all()
 
     @staticmethod
-    def get_by_id(id):
-        return List.query.get(id)
+    def get_by_id(list_id):
+        return List.query.get(list_id)
 
     def delete(self):
         db.session.delete(self)
