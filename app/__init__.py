@@ -26,8 +26,8 @@ def create_app(config_name):
 
     @app.route('/tasks/', methods=['POST'])
     def tasks_post():
-        list_id = int(request.data.get('list_id', 0))
-        text = str(request.data.get('text', ''))
+        list_id = int(request.data.get('list_id'))
+        text = request.data.get('text')
         if text and list_id > 0:
             task = Task(list_id=list_id,text=text)
             task.save()
@@ -40,10 +40,12 @@ def create_app(config_name):
             })
             response.status_code = 201
             return response
+        else:
+            return ('Missing parameter: text and list_id required.', 400)
 
     @app.route('/tasks/', methods=['GET'])
     def tasks_get():
-        list_id = int(request.args.get('list_id', 0))
+        list_id = int(request.args.get('list_id'))
         tasks = Task.get_by_list_id(list_id)
         results = []
         for task in tasks:
@@ -61,31 +63,29 @@ def create_app(config_name):
 
     @app.route('/tasks/<int:task_id>', methods=['PUT'])
     def tasks_put(task_id):
-        if task_id > 0:
-            db_task = Task.get_by_id(task_id)
-            if db_task:
-                new_task_dict = request.get_json(force=True)
-                db_task.text = new_task_dict['text']
-                db_task.list_id = new_task_dict['list_id']
-                db_task.save()
-                return ('', 204)
-            else:
-                abort(404)
+        db_task = Task.get_by_id(task_id)
+        if db_task:
+            db_task.text = request.data.get('text')
+            db_task.list_id = request.data.get('list_id')
+            db_task.save()
+            return ('', 204)
+        else:
+            return ('Task not found', 404)
 
     @app.route('/tasks/<int:task_id>', methods=['DELETE'])
     def tasks_delete(task_id):
-        task = Task.get_by_id(id=task_id)
-        task.delete()
-        result = { 'message' : 'Task deleted' }
-        response = jsonify(result)
-        response.status_code = 200
-        return response
+        task = Task.get_by_id(task_id=task_id)
+        if task:
+            task.delete()
+            return ('', 204)
+        else:
+            return ('Task not found', 404)
 
     # /lists
 
     @app.route('/lists/', methods=['POST'])
     def lists_post():
-        name = str(request.data.get('name', ''))
+        name = request.data.get('name', '')
         if name:
             list = List(name=name)
             list.save()
@@ -97,6 +97,8 @@ def create_app(config_name):
             })
             response.status_code = 201
             return response
+        else:
+            return ('Bad request: name is required', 400)
 
     @app.route('/lists/', methods=['GET'])
     def lists_get():
@@ -116,16 +118,16 @@ def create_app(config_name):
 
     @app.route('/lists/<int:list_id>', methods=['DELETE'])
     def lists_delete(list_id):
-        list = List.get_by_id(id=list_id)
+        list = List.get_by_id(list_id=list_id)
         if list:
             list.delete()
             return ('', 204)
         else:
-            abort(404)
+            return ('List not found', 404)
 
     @app.route('/lists/<int:list_id>', methods=['GET'])
     def lists_get_by_id(list_id):
-        list = List.get_by_id(id=list_id)
+        list = List.get_by_id(list_id=list_id)
         if list:
             response = jsonify({
                 'id': list.id,
@@ -136,17 +138,16 @@ def create_app(config_name):
             response.status_code = 200
             return response
         else:
-            abort(404)
+            return ('List not found', 404)
 
     @app.route('/lists/<int:list_id>', methods=['PUT'])
     def lists_put(list_id):
         db_list = List.get_by_id(list_id)
         if db_list:
-            new_list_dict = request.get_json(force=True)
-            db_list.name = new_list_dict['name']
+            db_list.name = request.data.get('name')
             db_list.save()
             return ('', 204)
         else:
-            abort(404)
+            return ('List not found', 404)
 
     return app
