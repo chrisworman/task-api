@@ -112,7 +112,9 @@ def create_app(config_name):
     @app.route('/tasks/', methods=['GET'])
     def tasks_get():
         list_id = int(request.args.get('list_id'))
+        marked = string_is_true(request.args.get('marked'))
         tasks = Task.get_by_list_id(list_id)
+        tasks = [task for task in tasks if task.marked == marked]
         results = []
         for task in tasks:
             api_model = task_api_model(task)
@@ -141,6 +143,13 @@ def create_app(config_name):
             return ('', 204)
         else:
             return ('Task not found', 404)
+
+    # Is the specified string case-insensitive "true"?
+    def string_is_true(targetString):
+        if (targetString is not None) and (targetString.lower() == "true"):
+            return True
+        else:
+            return False
 
     # Convert a "task" DB model to it's equivalent api model
     def task_api_model(task_db_model):
