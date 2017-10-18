@@ -8,15 +8,17 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     list_id = db.Column(db.Integer)
     text = db.Column(db.String(511))
+    marked = db.Column(db.Boolean, default=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
 
-    def __init__(self, list_id, text):
+    def __init__(self, list_id, text, marked):
         """initialize with text and list_id."""
         self.list_id = list_id
         self.text = text
+        self.marked = marked
 
     def save(self):
         db.session.add(self)

@@ -34,6 +34,14 @@ $ source env/bin/activate
 $ deactivate
 ```
 
+## Database Model Changes
+If you change the database model in python, you need to migrate and update the
+db schema:
+```
+$ python manage.py db migrate
+$ python manage.py db upgrade
+```
+
 TODO: talk about `.env` or include boiler plate?
 
 # Credits
