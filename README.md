@@ -25,7 +25,8 @@ You'll need the basic `python` tools, i.e. `pip` and `virtualenv`:
 $ git clone git@github.com:chrisworman/task-api.git
 $ cd task-api
 $ virtualenv env
-$ source env/bin/activate
+$ cat sample.env > .env # copy sample environment settings to .env
+$ source .env
 (env) $ pip install -r requirements.txt
 (env) $ createdb tasks_api
 (env) $ python manage.py db upgrade
@@ -41,8 +42,6 @@ db schema:
 $ python manage.py db migrate
 $ python manage.py db upgrade
 ```
-
-TODO: talk about `.env` or include boiler plate?
 
 # Credits
 This api is loosely based off of https://scotch.io/tutorials/build-a-restful-api-with-flask-the-tdd-way.
