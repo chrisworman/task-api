@@ -32,7 +32,8 @@ $ source .env
 (env) $ python manage.py db upgrade
 (env) $ flask run
 (env) $ # api should be listening now ... CTRL+C to stop
-$ deactivate
+(env) $ deactivate
+$
 ```
 
 ## Database Model Changes
