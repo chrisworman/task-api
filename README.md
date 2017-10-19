@@ -1,5 +1,5 @@
 # task-api
-The HTTP REST api for the task application.  Uses python and flask with with a
+The HTTP REST api for the task application.  Uses python and flask with a
 postgres SQL database.
 
 # Development Setup
