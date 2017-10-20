@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV APP_SETTINGS development
 ENV FLASK_APP run.py
 ENV SECRET development-secret
-ENV DATABASE_URL postgresql://localhost/tasks_api?user=task_api_user\&password=dev-password
+ENV DATABASE_URL postgresql://localhost/tasks_api?user=root\&password=dev-password
 
 EXPOSE 5000
 CMD ["/bin/bash"]
