@@ -9,16 +9,25 @@ terminal for running a
 container.
 
 In the first terminal clone the repo and continue to use this terminal for
-running git commands.
+running git commands, freezing pip requirements, and other changes to the repo
+directory.
 ```
 $ git clone git@github.com:chrisworman/task-api.git
 $ cd task-api
 ```
 
-In another terminal we'll run our development docker container:
+In another terminal we'll create our development docker image, which will
+take a few minutes to complete:
 ```
 $ cd task-api
 $ ./dev.sh docker build   # build the development docker image
+```
+We rarely need to run `docker build`; situations that require
+a build include changes to `requirements.txt` or `Dockerfile.dev`.
+
+Next, we run our image to create our development container, which will mount
+the repo directory in read-only mode:
+```
 $ ./dev.sh docker run     # run the development container from the image
 ```
 
@@ -33,9 +42,11 @@ script in the container to manage the development servers:
 # exit                    # exit the container
 ```
 
-Once you've left the development container, you can run it again:
+After you've left the development container, you can always run it again:
 ```
-$ ./dev.sh docker run     # run the development container from the image
+$ ./dev.sh docker run
+# ./dev.sh db start
+# ./dev.sh server start
 ```
 
 ## Database Model Changes
@@ -54,4 +65,4 @@ $ pip freeze > requirements.txt
 
 # Credits
 The initial version of this api was based off of a
-(scotch.io tutorial)[https://scotch.io/tutorials/build-a-restful-api-with-flask-the-tdd-way].
+[scotch.io tutorial](https://scotch.io/tutorials/build-a-restful-api-with-flask-the-tdd-way).
