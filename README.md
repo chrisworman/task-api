@@ -18,18 +18,24 @@ $ cd task-api
 In another terminal we'll run our development docker container:
 ```
 $ cd task-api
-$ ./dev.sh docker build # build the development docker image
-$ ./dev.sh docker run   # run the development container from the image
+$ ./dev.sh docker build   # build the development docker image
+$ ./dev.sh docker run     # run the development container from the image
 ```
 
 This will bring up an interactive container.  Continue to use the `dev.sh`
 script in the container to manage the development servers:
 ```
-# ./dev.sh db start # start the postgres server
-# ./dev.sh db init # this only needs to be done once
-# ./dev.sh server start
-# ./dev.sh server stop
-# ./dev.sh db stop
+# ./dev.sh db start       # start the postgres sql server
+# ./dev.sh db init        # init the sql ddb; this only needs to be done once
+# ./dev.sh server start   # start the http server
+# ./dev.sh server stop    # stop the http server
+# ./dev.sh db stop        # stop the postgres sql server
+# exit                    # exit the container
+```
+
+Once you've left the development container, you can run it again:
+```
+$ ./dev.sh docker run     # run the development container from the image
 ```
 
 ## Database Model Changes
