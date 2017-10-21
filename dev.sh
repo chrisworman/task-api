@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ "$#" -ne 2 ]; then
+  echo "Invalid arguments"
+  echo "  usage: $ ./dev.sh [system] [command]"
+  echo "  e.g.   $ ./dev.sh server start"
+  exit 1
+fi
+
 if [ $1 = "docker" ]; then
   if [ $2 = "build" ]; then
     docker build -f Dockerfile.dev -t task-api-dev .
