@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This is the development management script.  Used to start and stop db and
+# server and other useful development operations.
+
 if [ "$#" -ne 2 ]; then
   echo "Invalid arguments"
   echo "  usage: $ ./dev.sh [system] [command]"
