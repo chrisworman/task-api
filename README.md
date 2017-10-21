@@ -20,8 +20,7 @@ If a command line text editor is preferred (e.g. `vim`), use this terminal
 for editing source files.
 
 ## Docker Terminal
-In another terminal build the Docker image, which might take a few minutes to
-complete:
+In another terminal build the Docker image, which may take a few minutes:
 ```
 $ cd task-api
 $ ./dev.sh docker build   # build the development docker image
@@ -34,8 +33,9 @@ Next, run the Docker image to stand-up the development container:
 $ ./dev.sh docker run     # run the development container from the image
 ```
 
-This will bring up an interactive container with the repo directory mounted
-as a volume.  Continue to use the `./dev.sh` script in the container:
+This will bring up an interactive container running `/bin/bash` with the repo
+directory mounted as a volume in the current working directory.  
+Continue to use the `./dev.sh` script in the container:
 ```
 # ./dev.sh db init        # init the sql db; this only needs to be done once
 # ./dev.sh server start   # start the http server
@@ -44,25 +44,36 @@ as a volume.  Continue to use the `./dev.sh` script in the container:
 # exit                    # exit the container
 ```
 
-After exiting the development container, you can always run it again:
+Exiting the container stops the api server.  You can restart it with the db
+data persisting as follows:
 ```
-$ ./dev.sh docker run
+$ docker ps -a
+CONTAINER ID        IMAGE               
+41a0541faf54        task-api-dev   ...
+$ docker start -ia 41a0541faf54
 # ./dev.sh db start
 # ./dev.sh server start
 ```
 
-## Code Changes
+You can also create a new container with a fresh db:
+```
+$ ./dev.sh docker run
+# ./dev.sh db init
+# ./dev.sh server start
+```
+
+## Code and Database Changes
 If you change the models in python, you need to migrate and update the
 db schema in the container:
 ```
-$ ./dev.sh db migrate     # if necessary, create a migration file for model changes
-$ ./dev.sh db upgrade     # if necessary, upgrade the currently running db
+# ./dev.sh db migrate     # if necessary, create a migration file for model changes
+# ./dev.sh db upgrade     # if necessary, upgrade the currently running db
 ```
 
-If you install new packages, the dev script has a shortcut to `pip freeze` the
-requirements:
+If you install new packages, the `./dev.sh` script has a shortcut to freeze the
+requirements (must be done in container):
 ```
-$ ./dev.sh requirements freeze
+# ./dev.sh requirements freeze
 ```
 
 ## Development Docker Explanation
