@@ -14,7 +14,7 @@ if [ $1 = "docker" ]; then
   if [ $2 = "build" ]; then
     docker build -f Dockerfile.dev -t task-api-dev .
   elif [ $2 = "run" ]; then
-    docker run -v `pwd`:/usr/src/app -i -t -p 5000:5000 task-api-dev
+    docker run -v `pwd`:/task-api -i -t -p 5000:5000 task-api-dev
   else
     echo "Command not recognized: $2.  Try build or run"
     exit 1
@@ -25,12 +25,12 @@ elif [ $1 = "db" ]; then
   elif [ $2 = "init" ]; then
     service postgresql start
     su -c 'createdb tasks_api' - postgres
-    su -c 'psql -U postgres -d tasks_api -a -f /usr/src/app/create-dev-user.sql' - postgres
-    python /usr/src/app/manage.py db upgrade
+    su -c 'psql -U postgres -d tasks_api -a -f /task-api/create-dev-user.sql' - postgres
+    python /task-api/manage.py db upgrade
   elif [ $2 = "migrate" ]; then
-    python /usr/src/app/manage.py db migrate
+    python /task-api/manage.py db migrate
   elif [ $2 = "upgrade" ]; then
-    python /usr/src/app/manage.py db upgrade
+    python /task-api/manage.py db upgrade
   elif [ $2 = "stop" ]; then
     service postgresql stop
   else

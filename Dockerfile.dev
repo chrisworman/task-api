@@ -1,7 +1,7 @@
 FROM python:3
 
 SHELL ["/bin/bash", "-c"]
-WORKDIR /usr/src/app
+WORKDIR /task-api
 
 # postgres
 RUN apt-get update
