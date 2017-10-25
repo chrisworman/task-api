@@ -39,9 +39,9 @@ elif [ $1 = "db" ]; then
   fi
 elif [ $1 = "server" ]; then
     if [ $2 = "start" ]; then
-      flask run &
+      python run.py &
     elif [ $2 = "stop" ]; then
-      pkill flask
+      pkill python
     else
       echo "Command not recognized: $2.  Try start or stop"
       exit 1
