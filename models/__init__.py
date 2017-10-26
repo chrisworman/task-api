@@ -1,4 +1,4 @@
-from app import db
+from main import db
 
 class Task(db.Model):
     """This class represents the tasks table."""
