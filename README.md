@@ -6,69 +6,44 @@ postgres SQL database.
 The development environment has two requirements:
 [git](https://git-scm.com/downloads) and
 [docker](https://store.docker.com/search?type=edition&offering=community).
-Once you have `docker` running, open two terminals: one for `git` and one
-for `docker`.
-
-## Git Terminal
-In the first terminal clone the repo and continue to use this terminal for
-running git commands:
+Once you have `docker` running, clone the repo:
 ```
 $ git clone git@github.com:chrisworman/task-api.git
 $ cd task-api
-$ git status              # run your git commands in this terminal
-```
-If you want to edit source code, and you prefer a command line text editor, use
-this terminal for editing.
-
-## Docker Terminal
-In another terminal build the docker image, which may take a few minutes:
-```
-$ cd task-api             # navigate to the task-api folder
-$ ./dev.sh docker build   # build the development docker image
-```
-The docker image only needs to be built once unless the `Dockerfile.dev`
-file changes.
-
-Next, run the docker image to stand-up the development container:
-```
-$ ./dev.sh docker run     # run the development container from the image
 ```
 
-This will bring up an interactive container running `/bin/bash` with the repo
-directory mounted as a volume in the current working directory.  
-Continue to use the `./dev.sh` script in the container:
+The development environment is managed by the `dev.sh` script.  First build
+the development docker containers:
 ```
-# ./dev.sh db init        # init the sql db; this only needs to be done once
-# ./dev.sh server start   # start the http server
-# ./dev.sh server stop    # stop the http server
-# ./dev.sh db stop        # stop the postgres sql server
-# exit                    # exit the container
+$ ./dev.sh build
+```
+The docker images needs to be built after each source code change, including
+after a change to `Dockerfile`.
+
+Use the `start` command to start the development environment:
+```
+$ ./dev.sh start
 ```
 
-Exiting the container stops the api server.  You can restart it with the db
-data persisting as follows:
+This will bring up two containers, one running the db server and one
+running the http server.  You can inspect activity in the containers using
+the `logs` command:
 ```
-$ docker ps -a
-CONTAINER ID        IMAGE               
-<your_container_id> task-api-dev   ...
-$ docker start -ia <your_container_id>
-# ./dev.sh db start
-# ./dev.sh server start
+$ ./dev.sh logs http
+$ ./dev.sh logs db
 ```
 
-You can also create a new container with a fresh db:
+When you are finished, you can stop and remove the containers using the
+`stop` command:
 ```
-$ ./dev.sh docker run
-# ./dev.sh db init
-# ./dev.sh server start
+$ ./dev.sh stop
 ```
 
 ## Code and Database Changes
 If you change the models in python, you need to migrate and update the
 db schema in the container:
 ```
-# ./dev.sh db migrate     # if necessary, create a migration file for model changes
-# ./dev.sh db upgrade     # if necessary, upgrade the currently running db
+# ./dev.sh migrate
 ```
 
 If you install new packages, the `./dev.sh` script has a shortcut to freeze the

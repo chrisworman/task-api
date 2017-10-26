@@ -1,6 +1,6 @@
 
 .dockerignore
-Dockerfile.dev
+Dockerfile
 sample.env
 README.md
 .git
