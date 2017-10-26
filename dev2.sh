@@ -19,12 +19,12 @@ if [ $1 = "init" ]; then
 elif [ $1 = "start" ]; then
     echo "Starting development environment:"
     echo "** Starting developmemnt database container ..."
-    docker run --net=host --name task-api-dev-db-server -e "POSTGRES_PASSWORD=dev-password" -d postgres
+    docker run -p 5432:5432 --name task-api-dev-db-server -e "POSTGRES_PASSWORD=dev_password" -d postgres
     sleep 2
-    docker exec -it task-api-dev-db-server psql -U postgres -c 'CREATE DATABASE tasks_api;'
-    sleep 2
+    dbServerIPAddress="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db-server)"
+    docker exec -it task-api-dev-db-server psql -U postgres -c "CREATE DATABASE tasks_api;"
     echo "** Starting development api server container ..."
-    docker run --net=host --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://localhost/tasks_api?user=postgres\&password=dev-password" -d task-api
+    docker run -it -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" -d task-api
     sleep 2
     docker exec -it task-api-dev-http-server python /app/manage.py db upgrade
 elif [ $1 = "clean" ]; then
