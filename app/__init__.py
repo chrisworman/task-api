@@ -1,34 +1,40 @@
 #!env/bin/python
+import os
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, Flask
 from flask_cors import CORS
 from instance.config import app_config
 import pprint
 import json
 
-# initialize sql-alchemy
 db = SQLAlchemy()
 
 def create_app(config_name):
+
     from app.models import Task
     from app.models import List
 
-    app = FlaskAPI(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True)
+
+    config_name = os.getenv('APP_SETTINGS')
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.url_map.strict_slashes = False
+
     cors = CORS(app)
     db.init_app(app)
 
-    # routing
-    app.url_map.strict_slashes = False
+    @app.route("/")
+    def hello():
+        return "task-api v1.3"
 
     # /lists
 
     @app.route('/lists/', methods=['POST'])
     def lists_post():
-        name = request.data.get('name', '')
+        name = request.get_json()['name']
         if name:
             list = List(name=name)
             list.save()
@@ -77,7 +83,7 @@ def create_app(config_name):
     def lists_put(list_id):
         db_list = List.get_by_id(list_id)
         if db_list:
-            db_list.name = request.data.get('name')
+            db_list.name = request.get_json()['name']
             db_list.save()
             return ('', 204)
         else:
@@ -97,9 +103,9 @@ def create_app(config_name):
 
     @app.route('/tasks/', methods=['POST'])
     def tasks_post():
-        list_id = int(request.data.get('list_id'))
-        text = request.data.get('text')
-        marked = request.data.get('marked')
+        list_id = int(request.get_json()['list_id'])
+        text = request.get_json()['text']
+        marked = request.get_json()['marked']
         if text and list_id > 0:
             task = Task(list_id=list_id, text=text, marked=marked)
             task.save()
@@ -127,9 +133,9 @@ def create_app(config_name):
     def tasks_put(task_id):
         db_task = Task.get_by_id(task_id)
         if db_task:
-            db_task.text = request.data.get('text')
-            db_task.list_id = request.data.get('list_id')
-            db_task.marked = request.data.get('marked')
+            db_task.text = request.get_json()['text']
+            db_task.list_id = request.get_json()['list_id']
+            db_task.marked = request.get_json()['marked']
             db_task.save()
             return ('', 204)
         else:

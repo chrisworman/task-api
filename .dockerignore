@@ -1,12 +1,12 @@
 
 .dockerignore
-Dockerfile.dev
+Dockerfile
 sample.env
 README.md
 .git
+.gitignore
 *.pyc
 __pycache__
-.dockerignore
 *.pyo
 *.pyd
 .Python
@@ -19,3 +19,5 @@ pip-log.txt
 coverage.xml
 *,cover
 *.log
+dev.sh
+LICENSE
