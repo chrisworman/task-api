@@ -31,7 +31,7 @@ def hello():
 
 @app.route('/lists/', methods=['POST'])
 def lists_post():
-    name = request.data.get('name', '')
+    name = request.get_json()['name']
     if name:
         list = List(name=name)
         list.save()
@@ -80,7 +80,7 @@ def lists_get_by_id(list_id):
 def lists_put(list_id):
     db_list = List.get_by_id(list_id)
     if db_list:
-        db_list.name = request.data.get('name')
+        db_list.name = request.get_json()['name']
         db_list.save()
         return ('', 204)
     else:
@@ -100,9 +100,9 @@ def list_api_model(list_db_model):
 
 @app.route('/tasks/', methods=['POST'])
 def tasks_post():
-    list_id = int(request.data.get('list_id'))
-    text = request.data.get('text')
-    marked = request.data.get('marked')
+    list_id = int(request.get_json()['list_id'])
+    text = request.get_json()['text']
+    marked = request.get_json()['marked']
     if text and list_id > 0:
         task = Task(list_id=list_id, text=text, marked=marked)
         task.save()
@@ -130,9 +130,9 @@ def tasks_get():
 def tasks_put(task_id):
     db_task = Task.get_by_id(task_id)
     if db_task:
-        db_task.text = request.data.get('text')
-        db_task.list_id = request.data.get('list_id')
-        db_task.marked = request.data.get('marked')
+        db_task.text = request.get_json()['text']
+        db_task.list_id = request.get_json()['list_id']
+        db_task.marked = request.get_json()['marked']
         db_task.save()
         return ('', 204)
     else:

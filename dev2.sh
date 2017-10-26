@@ -24,8 +24,7 @@ elif [ $1 = "start" ]; then
     dbServerIPAddress="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db-server)"
     docker exec -it task-api-dev-db-server psql -U postgres -c "CREATE DATABASE tasks_api;"
     echo "** Starting development api server container ..."
-    docker run -it -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" -d task-api
-    sleep 2
+    docker run -itd -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" task-api
     docker exec -it task-api-dev-http-server python /app/manage.py db upgrade
 elif [ $1 = "clean" ]; then
   docker stop $(docker ps -a -q)
