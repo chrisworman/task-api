@@ -28,26 +28,30 @@ This will bring up two containers, one running the db server and one
 running the http server.  You can inspect activity in the containers using
 the `logs` command:
 ```
-$ ./dev.sh logs http
-$ ./dev.sh logs db
+$ ./dev.sh http logs
+$ ./dev.sh db logs
 ```
 
 The source code for the app is mounted in the http container.  If you want
 to apply code changes, you need to restart the http server:
 ```
-$ ./dev.sh restart http
+$ ./dev.sh http restart
 ```
 
-If you change the data models in python, you need to generate migration scripts
-and upgrade the database:
+If want to execute a command in a container, for example to install python
+packages with `pip`, use the `attach` command to start a bash shell in the
+desired container:
 ```
-$ ./dev.sh migrate
+$ ./dev.sh http attach
+$ ./dev.sh db attach
 ```
+Type `exit` to detach from the container.
 
-If you install new packages, the `./dev.sh` script has a shortcut to run
-`pip freeze > requirements.txt`:
+Rather than attaching to a container and running commands, the dev script
+also has shortcuts to common commands:
 ```
-$ ./dev.sh freeze
+$ ./dev.sh http freeze       # runs "pip freeze > requirements.txt" in the http container
+$ ./dev.sh db migrate        # runs a db migrate and upgrade
 ```
 
 When you are done working with the api, you can stop and remove the containers
