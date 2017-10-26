@@ -1,6 +1,7 @@
 # task-api
 The HTTP REST api for the task application.  Uses python and flask with a
-postgres SQL database.
+postgres SQL database.  Docker is used to containerize the app in a way
+that works in all environments, including development and production.
 
 # Development Environment
 The development environment has two requirements:
@@ -17,8 +18,6 @@ the development docker containers:
 ```
 $ ./dev.sh build
 ```
-The docker images needs to be built after each source code change, including
-after a change to `Dockerfile`.
 
 Use the `start` command to start the development environment:
 ```
@@ -33,23 +32,29 @@ $ ./dev.sh logs http
 $ ./dev.sh logs db
 ```
 
-When you are finished, you can stop and remove the containers using the
-`stop` command:
+The source code for the app is mounted in the http container.  If you want
+to apply code changes, you need to restart the http server:
+```
+$ ./dev.sh restart http
+```
+
+If you change the data models in python, you need to generate migration scripts
+and upgrade the database:
+```
+$ ./dev.sh migrate
+```
+
+If you install new packages, the `./dev.sh` script has a shortcut to run
+`pip freeze > requirements.txt`:
+```
+$ ./dev.sh freeze
+```
+
+When you are done working with the api, you can stop and remove the containers
+using the `stop` command.  You can then start the api again with the `start`
+command.
 ```
 $ ./dev.sh stop
-```
-
-## Code and Database Changes
-If you change the models in python, you need to migrate and update the
-db schema in the container:
-```
-# ./dev.sh migrate
-```
-
-If you install new packages, the `./dev.sh` script has a shortcut to freeze the
-requirements (must be done in container):
-```
-# ./dev.sh requirements freeze
 ```
 
 ## Development Docker Explanation

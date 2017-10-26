@@ -4,7 +4,7 @@
 # stop a development environment that uses docker containers for the http server
 # and the database server.
 
-# usage: $ ./dev.sh [ build | start | stop | logs [http|db] ]
+# usage: $ ./dev.sh [ build | start | stop | restart | logs [http|db] | migrate ]
 
 if [ $1 = "build" ]; then
 
@@ -16,27 +16,29 @@ if [ $1 = "build" ]; then
 
 elif [ $1 = "start" ]; then
 
-    echo "Starting development environment ... "
+  echo "> Starting database container ..."
+  docker run -p 5432:5432 --name task-api-dev-db-server -e "POSTGRES_PASSWORD=dev_password" -d postgres
+  sleep 3
+  dbServerIPAddress="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db-server)"
+  docker exec -it task-api-dev-db-server psql -U postgres -c "CREATE DATABASE tasks_api;"
 
-    echo "> Starting database container ..."
-    docker run -p 5432:5432 --name task-api-dev-db-server -e "POSTGRES_PASSWORD=dev_password" -d postgres
-    sleep 3
-    dbServerIPAddress="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db-server)"
-    docker exec -it task-api-dev-db-server psql -U postgres -c "CREATE DATABASE tasks_api;"
+  echo "> Starting http server container ..."
+  docker run -itd -v `pwd`:/app -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" task-api
+  docker exec -it task-api-dev-http-server python /app/manage.py db upgrade
 
-    echo "> Starting http server container ..."
-    docker run -itd -v `pwd`:/app -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" task-api
-    docker exec -it task-api-dev-http-server python /app/manage.py db upgrade
-
-    echo "task-api should be listening on http://localhost:80/"
+  echo "task-api should be listening on http://localhost:80/"
 
 elif [ $1 = "restart" ]; then
 
-  echo "> Restarting http server ..."
-  docker stop task-api-dev-http-server
-  docker rm task-api-dev-http-server
-  docker run -itd -v `pwd`:/app -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" task-api
-  echo "task-api should be listening on http://localhost:80/"
+  if [ $2 = "http" ]; then
+    echo "> Restarting http server ..."
+    docker stop task-api-dev-http-server
+    docker rm task-api-dev-http-server
+    docker run -itd -v `pwd`:/app -p 80:80 --name task-api-dev-http-server -e "APP_SETTINGS=development" -e "DATABASE_URL=postgresql://$dbServerIPAddress/tasks_api?user=postgres&password=dev_password" task-api
+    echo "task-api should be listening on http://localhost:80/"
+  elif [ $2 = "db" ]; then
+    echo "Not implemented"
+  fi
 
 elif [ $1 = "logs" ]; then
 
@@ -56,10 +58,16 @@ elif [ $1 = "migrate" ]; then
   docker exec -it task-api-dev-http-server python /app/manage.py db migrate
   docker exec -it task-api-dev-http-server python /app/manage.py db upgrade
 
+elif [ $1 = "freeze" ]; then
+
+  docker exec -it task-api-dev-http-server pip freeze > requirements.txt
+
 else
+
   echo "Unrecognized command: $1"
-  echo "usage: ./dev.sh [ build | start | stop | logs [http|db] ]"
+  echo "usage: ./dev.sh [ build | start | stop | restart | logs [http|db] | migrate ]"
   exit 1
+
 fi
 
 exit 0
