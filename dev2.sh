@@ -20,7 +20,7 @@ elif [ $1 = "start" ]; then
     echo "Starting development environment:"
     echo "** Starting developmemnt database container ..."
     docker run -p 5432:5432 --name task-api-dev-db-server -e "POSTGRES_PASSWORD=dev_password" -d postgres
-    sleep 2
+    sleep 2 # hack that can be removed if we can pause until the db server is up and listening
     dbServerIPAddress="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db-server)"
     docker exec -it task-api-dev-db-server psql -U postgres -c "CREATE DATABASE tasks_api;"
     echo "** Starting development api server container ..."
