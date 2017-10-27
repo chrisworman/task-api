@@ -55,24 +55,28 @@ $ ./dev.sh db migrate        # runs a db migrate and upgrade
 ```
 
 When you are done working with the api, you can stop and remove the containers
-using the `stop` command.  You can then start the api again with the `start`
+using the `stop` command.  You can start the api again with the `start`
 command.
 ```
-$ ./dev.sh stop
+$ ./dev.sh start
 ```
 
 ## Development Docker Explanation
 Why are we using a docker container for development instead of relying on more
 common python tools like `virtualenv`?  Part of the reason is just to try
-something new, but there are other advantages.  Since the api relies on a
-postgres db, standing-up a dev environment would require the developer to
-install, start, and configure a postgres sql database.  The docker container
-takes care of this; it contains a configured postgres instance ready to go.
+something new, but there are other advantages.  
+
+* Since the api relies on a postgres db, standing-up a dev environment would
+require the developer to install, start, and configure a postgres sql database.  
 Since the docker container is isolated from the host machine, existing
 installations of postgres on the host machine do not conflict with the
-requirements of the api. The docker container also isolates the python packages
-required by the api from the host machine; of course this is usually dealt with
-using `virtualenv`.
+requirements of the api.
+
+* The docker container also isolates the python packages required by the api
+from the host machine; of course this is usually dealt with using `virtualenv`.
+
+* The production deployment of the api uses the same docker image as the
+development environment, which helps with continuous deployment.
 
 Another note about the development docker setup: the repo folder is mounted as
 a volume in the container.  This allows the developer to use their favorite
