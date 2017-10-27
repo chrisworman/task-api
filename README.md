@@ -26,10 +26,10 @@ $ ./dev.sh start
 
 This will bring up two containers, one running the db server and one
 running the http server.  You can inspect activity in the containers using
-the `logs` command:
+the `log` command:
 ```
-$ ./dev.sh http logs
-$ ./dev.sh db logs
+$ ./dev.sh http log
+$ ./dev.sh db log
 ```
 
 The source code for the app is mounted in the http container.  If you want
