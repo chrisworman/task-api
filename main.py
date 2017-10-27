@@ -4,22 +4,19 @@ from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, Flask
 from flask_cors import CORS
-from instance.config import app_config
+from config import config_from_app_settings
 import pprint
 import json
 
 db = SQLAlchemy()
 
-def create_app(config_name):
+def create_app(app_settings):
 
     from models import Task
     from models import List
 
-    app = Flask(__name__, instance_relative_config=True)
-
-    config_name = os.getenv('APP_SETTINGS')
-    app.config.from_object(app_config[config_name])
-    app.config.from_pyfile('config.py')
+    app = Flask(__name__)
+    app.config.from_object(config_from_app_settings(app_settings))
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.url_map.strict_slashes = False
 
@@ -171,8 +168,8 @@ def create_app(config_name):
 
     return app
 
-config_name = os.getenv('APP_SETTINGS')
-app = create_app(config_name)
+app_settings = os.getenv('APP_SETTINGS')
+app = create_app(app_settings)
 
 if __name__ == "__main__":
     # Only for debugging while developing
