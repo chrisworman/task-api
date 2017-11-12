@@ -6,3 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the app source code into the container
 COPY . /app
+
+# The api listens on port 80
+EXPOSE 80
