@@ -25,7 +25,7 @@ def create_app(app_settings):
 
     @app.route("/")
     def hello():
-        return "task-api v1.3"
+        return "task-api from eb cli"
 
     # /lists
 
