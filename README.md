@@ -83,6 +83,24 @@ a volume in the container.  This allows the developer to use their favorite
 text editor in the host environment, rather than relying on an editor in the
 container.
 
+# Production Deployment Using AWS Elastic Beanstalk
+
+* http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/docker-singlecontainer-deploy.html
+
+Install the Elastic Beanstalk Command Line Interface (EB CLI)
+(http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html):
+```
+pip install awsebcli --upgrade --user
+```
+
+Add the following to your `~/.bash_profile`:
+```
+export PATH=~/Library/Python/2.7/bin:$PATH
+```
+
+Configure AWS security groups for EB & RDS:
+http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.RDS.html
+
 # Credits
 The initial version of this api was based off of a
 [scotch.io tutorial](https://scotch.io/tutorials/build-a-restful-api-with-flask-the-tdd-way).
