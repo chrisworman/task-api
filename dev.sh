@@ -41,7 +41,7 @@ function build_docker_images {
 function start_db_container {
   echo "> Starting database container ..."
   docker run -p 5432:5432 --name task-api-dev-db -e "POSTGRES_PASSWORD=dev_password" -d postgres &&
-  sleep 2 &&
+  sleep 5 &&
   docker exec -it task-api-dev-db psql -U postgres -c "CREATE DATABASE tasks_api;"
   return 0
 }
