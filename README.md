@@ -58,6 +58,7 @@ When you are done working with the api, you can stop and remove the containers
 using the `stop` command.  You can start the api again with the `start`
 command.
 ```
+$ ./dev.sh stop
 $ ./dev.sh start
 ```
 
