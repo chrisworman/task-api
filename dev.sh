@@ -43,16 +43,24 @@ function start_db_container {
   docker run -p 5432:5432 --name task-api-dev-db -e "POSTGRES_PASSWORD=dev_password" -d postgres &&
   sleep 5 &&
   docker exec -it task-api-dev-db psql -U postgres -c "CREATE DATABASE tasks_api;"
+  echo "> DB listening on port 5432"
   return 0
+}
+
+function set_http_port {
+  HTTP_PORT="8081" # default http api port
+  if [ "$#" -gt 0 ]; then
+    HTTP_PORT="$1"
+  fi
 }
 
 function start_http_container {
   echo "> Starting http server container ..."
-  db_server_ip="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db)" &&
-  db_url="postgresql://$db_server_ip/tasks_api?user=postgres&password=dev_password" &&
-  docker run -itd -v `pwd`:/app -p 80:80 --name task-api-dev-http -e "APP_SETTINGS=development" -e "DATABASE_URL=$db_url" task-api &&
+  DB_SERVER_IP_ADDRESS="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db)"
+  DB_URL="postgresql://$DB_SERVER_IP_ADDRESS/tasks_api?user=postgres&password=dev_password"
+  docker run -itd -v `pwd`:/app -p "$HTTP_PORT":80 --name task-api-dev-http -e "APP_SETTINGS=development" -e "DATABASE_URL=$DB_URL" task-api &&
   docker exec -it task-api-dev-http python /app/manage.py db upgrade &&
-  echo "> task-api should be listening on http://localhost:80/"
+  printf "HTTP API listening on port %s\n" "$HTTP_PORT"
   return 0
 }
 
@@ -94,7 +102,7 @@ function upgrade_db {
 if [ $1 = "build" ]; then
   build_docker_images
 elif [ $1 = "start" ]; then
-  start_db_container && start_http_container
+  set_http_port $2 && start_db_container && start_http_container
 elif [ $1 = "stop" ]; then
   stop_and_remove_containers
 elif [ $1 = "db" ]; then
