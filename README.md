@@ -51,6 +51,11 @@ $ ./dev.sh stop
 $ ./dev.sh start
 ```
 
+You can clean up the development environment by removing all images with the `clean` command:
+```
+$./dev.sh clean
+```
+
 ## Development Docker Explanation
 Why are we using a docker container for development instead of relying on more common python tools like `virtualenv`?  Part of the reason is just to try something new, but there are other advantages.  
 
