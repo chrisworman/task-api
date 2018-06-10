@@ -99,12 +99,21 @@ function upgrade_db {
   return 0
 }
 
+function remove_images {
+  stop_and_remove_containers &&
+  echo "> Removing http server image ..." &&
+  docker rmi task-api
+  return 0
+}
+
 if [ $1 = "build" ]; then
   build_docker_images
 elif [ $1 = "start" ]; then
   set_http_port $2 && start_db_container && start_http_container
 elif [ $1 = "stop" ]; then
   stop_and_remove_containers
+elif [ $1 = "clean" ];  then
+  remove_images
 elif [ $1 = "db" ]; then
 
   if [ "$#" -ne 2 ]; then
