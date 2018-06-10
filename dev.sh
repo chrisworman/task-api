@@ -56,6 +56,7 @@ function set_http_port {
 
 function start_http_container {
   echo "> Starting http server container ..."
+  set_http_port $1
   DB_SERVER_IP_ADDRESS="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' task-api-dev-db)"
   DB_URL="postgresql://$DB_SERVER_IP_ADDRESS/tasks_api?user=postgres&password=dev_password"
   docker run -itd -v `pwd`:/app -p "$HTTP_PORT":80 --name task-api-dev-http -e "APP_SETTINGS=development" -e "DATABASE_URL=$DB_URL" task-api &&
@@ -78,7 +79,7 @@ function stop_and_remove_db_container {
 
 function restart_http_container {
   echo "> Restarting http server container ..."
-  stop_and_remove_http_container && start_http_container
+  stop_and_remove_http_container && start_http_container $1
   return 0
 }
 
@@ -109,7 +110,7 @@ function remove_images {
 if [ $1 = "build" ]; then
   build_docker_images
 elif [ $1 = "start" ]; then
-  set_http_port $2 && start_db_container && start_http_container
+   start_db_container && start_http_container $2
 elif [ $1 = "stop" ]; then
   stop_and_remove_containers
 elif [ $1 = "clean" ];  then
@@ -139,7 +140,7 @@ elif [ $1 = "http" ]; then
   fi
 
   if [ $2 = "restart" ]; then
-    restart_http_container
+    restart_http_container $3
   elif [ $2 = "log" ]; then
     docker logs task-api-dev-http
   elif [ $2 = "freeze" ]; then
