@@ -65,12 +65,7 @@ def create_app(app_settings):
     def lists_get_by_id(list_id):
         list = List.get_by_id(list_id=list_id)
         if list:
-            response = jsonify({
-                'id': list.id,
-                'name': list.name,
-                'date_created': list.date_created,
-                'date_modified': list.date_modified
-            })
+            response = jsonify(list_api_model(list))
             response.status_code = 200
             return response
         else:
